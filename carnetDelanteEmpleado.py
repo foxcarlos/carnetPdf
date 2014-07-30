@@ -1,5 +1,6 @@
 from fpdf import FPDF
 import dbf
+import os
 
 class CrearNxxmast:
     def __init__(self):
@@ -40,7 +41,7 @@ class CrearNxxmast:
 class MyPDF(FPDF):
     def __init__(self):
         ''' Se ejecuta el metodo __init__ de la clase MyPDF()
-        y se e pasa como parametro el tamaño del carnet'''
+        y se e pasa como parametro el tamano del carnet'''
         FPDF.__init__(self, orientation='P',unit='mm',format=(55,85))
 
     def buscarFicha(self, ficha):
@@ -78,9 +79,9 @@ class MyPDF(FPDF):
     def header(self):
         ''' La cabecera toma las variables Globales'''
         
-        imgBandera = "Bandera.JPG"
-        imgFondo = "FONDOCARNET.jpg"
-        imgLogo = "HOSPITALC.JPG"
+        imgBandera = "/home/cgarcia/desarrollo/python/coromotoWeb/carnetPdf/img/Bandera.JPG"
+        imgFondo = "/home/cgarcia/desarrollo/python/coromotoWeb/carnetPdf/img/FONDOCARNET.jpg"
+        imgLogo = "/home/cgarcia/desarrollo/python/coromotoWeb/carnetPdf/img/HOSPITALC.JPG"
         imgFoto = '/media/serv_coromoto/NominaShc/FotosE/F00{0}.JPG'.format(str(self.ficha))
 
         #Agrego las Imagenes de cabecera

@@ -40,7 +40,8 @@ class CrearNxxmast:
 class MyPDF(FPDF):
     def __init__(self):
         ''' Se ejecuta el metodo __init__ de la clase MyPDF()
-        y se e pasa como parametro el tamaño del carnet'''
+        y se e pasa como parametro el tamano del carnet'''
+
         FPDF.__init__(self, orientation='P',unit='mm',format=(55,85))
 
     def buscarFicha(self, ficha):
@@ -59,76 +60,73 @@ class MyPDF(FPDF):
             if  f[1] == self.fichaBuscar:
                 self.ficha, self.nombre, self.tipov, self.cedula = f[1], f[2], f[3], f[4]
                 print(self.ficha, self.nombre, self.tipov, self.cedula)
+        
+        return self.ficha, self.nombre, self.tipov, self.cedula
                         
     def footer(self):
-        ''' Pie de Pagina, obtiene el nombre y el apellido de 
-        la variable Global self.nombre'''
+        ''' Pie de Pagina, obtiene la cedula de 
+        la variable Global self.cedula'''
         
-        NyA = self.nombre.split(',')
-        apellidos = NyA[0].strip()
-        nombres = NyA[1].strip()
-        
-        #Agrego Nombre del Empleado y lo ubico en el pie de pagina
-        self.set_font('Arial', 'B', 10)
-        self.set_y(-10)      
-        self.cell(0, 7, apellidos, align="C")
-        self.ln(2)
-        self.cell(0, 11, nombres, align="C") 
+        ced = '*{0}*'.format(self.cedula)
+
+        #Codigo de Barra        
+        self.add_font('ean3', '', r"/home/cgarcia/desarrollo/python/coromotoWeb/carnetPdf/free3of9/fre3of9x.ttf", uni=True)        
+        self.set_font('ean3', '', 21)
+        self.set_text_color(0,0,0)
+        self.set_y(-20)
+        self.cell(0, 7, ced , align="C")
 
     def header(self):
         ''' La cabecera toma las variables Globales'''
-        
-        imgBandera = "Bandera.JPG"
-        imgFondo = "FONDOCARNET.jpg"
-        imgLogo = "HOSPITALC.JPG"
-        imgFoto = '/media/serv_coromoto/NominaShc/FotosE/F00{0}.JPG'.format(str(self.ficha))
-
-        #Agrego las Imagenes de cabecera
-        self.image(imgFondo, 0,11,w=55,h=81)
-        self.image(imgBandera,0,10,w=55,h=11)
-        
-        #Imagen de la Foto, solo se agrega si existe la imagen
-        if os.path.isfile(imgFoto):
-            #self.image(imgFoto,15,42,w=25,h=33)
-            self.image(imgFoto,15,41,w=25.54,h=29.30)
-        
-        #Imagen del Logo
-        self.image(imgLogo,5, 29, w=9, h=12)
-        
         
 class ReportTablePDF:
 
     def __init__(self):
         self.pdf = MyPDF()
-        self.pdf.buscarFicha('11951')
+        listaDevuelta = self.pdf.buscarFicha('11951')
+        self.ficha, self.nombre, self.tipov, self.cedula = listaDevuelta
 
-    def imprimir(self):  
-        cabe1 = 'REPUBLICA BOLIVARIANA DE VENEZUELA'
-        cabe2 = 'PDV SERVICIOS DE SALUD S.A.'
-        cabe3 = 'HOSPITAL'
-        cabe4 = 'COROMOTO'
+    def imprimir(self):
+        ''' Imprime en el carnet los datos del empleado tomandolos 
+        de las variables globales generadas en el metodo buscarFicha()'''
+
+        ficha = self.ficha
+        cedula = self.cedula
+
+        cabe1 = 'FICHA: {0}'.format(ficha)
+        cabe2 = 'C.I.: {0}'.format(cedula)
+        cabe3 = 'VALIDO SOLO COMO DOCUMENTO DE '
+        cabe3a = 'IDENTIFICACION INTERNO. SU USO INDEBIDO'
+        cabe3b = 'NO REPRESENTA NINGUNA RESPONSABILIDAD'
+        cabe3c = 'PARA EL HOSPITAL COROMOTO.'''
+        cabe4 = 'ESTE DOCUMENTO ES PROPIEDAD DE LA INSTITUCION.'
         
         self.pdf.add_page()
-        self.pdf.ln(13)
 
-        #Primer Texto y tipo de letra
-        self.pdf.set_font('Arial', 'B', 7)
-        self.pdf.set_text_color(255,0,0)
-        self.pdf.cell(w=0,h=0,txt=cabe1,border=0,ln=1,align='C')
+        #Ficha
+        self.pdf.set_font('Arial', 'B', 11)
+        self.pdf.set_text_color(0,0,0)
+        self.pdf.cell(0,12,cabe1,0,1,'C')
         
-        #Segundo Texto y tipo de letra
-        self.pdf.set_font('Arial', 'B', 9)
-        self.pdf.set_text_color(255,0,0)
-        self.pdf.cell(w=0,h=7,txt=cabe2,border=0,ln=1,align='C')
+        #Cedula
+        self.pdf.set_font('Arial', 'B', 11)
+        self.pdf.set_text_color(0,0,0)
+        self.pdf.cell(0,1,cabe2,0,1,'C')
         
-        #Tercer Texto y tipo de letra
-        self.pdf.set_font('Arial', 'B', 12)
-        self.pdf.cell(0,4, cabe3, 0, 1, 'C')
-        self.pdf.cell(0,8, cabe4, 0, 1, 'C')
-        
-        #Imagen de la Foto
-        #self.pdf.image(self.imgFoto,15,42,w=25,h=33)
-        self.pdf.output('PRUEBA.PDF','F')  
+        #Advertencia
+        self.pdf.set_font('Arial', 'B', 5)
+        self.pdf.cell(0,25, cabe3, 0, 0, 'C')
+        self.pdf.ln(2)
+        self.pdf.cell(0,25, cabe3a, 0, 0, 'C')
+        self.pdf.ln(2)
+        self.pdf.cell(0,25, cabe3b, 0, 0, 'C')
+        self.pdf.ln(2)
+        self.pdf.cell(0,25, cabe3c, 0, 0, 'C')
+        self.pdf.ln(3)
+        self.pdf.cell(0,25, cabe4, 0, 0, 'C')
+        self.pdf.ln(2)
+
+        self.pdf.output('DETRAS.PDF','F')
 
 pdf = ReportTablePDF()
 pdf.imprimir()
